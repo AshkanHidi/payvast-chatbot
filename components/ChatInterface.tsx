@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, MessageAuthor, MessageType, KnowledgeEntry } from '../types';
 import { knowledgeService } from '../services/knowledgeService';
-import { BotIcon, SendIcon, UserIcon, VideoPlayIcon, TelegramIcon } from './icons';
+import { BotIcon, SendIcon, UserIcon, VideoPlayIcon, TelegramIcon, RobotBgIcon } from './icons';
 
 const playResponseSound = () => {
   // Assuming bot-response.mp3 is in the public folder
@@ -290,7 +290,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
   };
 
   return (
-    <div className="bg-slate-800/70 flex flex-col h-full p-3 md:p-4 rounded-xl border border-slate-700">
+    <div className="bg-slate-800/70 flex flex-col h-full p-3 md:p-4 rounded-xl border border-slate-700 relative overflow-hidden">
+      <RobotBgIcon className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 md:w-96 md:h-96 text-slate-900 pointer-events-none opacity-10" />
       <div className="flex-grow overflow-y-auto mb-3 -mx-3 px-3">
         {messages.map((msg) => 
             msg.type === MessageType.SUGGESTION 
