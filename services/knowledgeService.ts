@@ -39,7 +39,11 @@ class KnowledgeService {
       if (!response.ok) {
         throw new Error(`خطا در بارگیری فایل: ${response.statusText}`);
       }
-      const csvText = await response.text();
+      // خواندن فایل به صورت باینری و رمزگشایی با UTF-8 برای پشتیبانی کامل از فارسی
+      const buffer = await response.arrayBuffer();
+      const decoder = new TextDecoder('utf-8');
+      const csvText = decoder.decode(buffer);
+
       this.knowledgeBase = parseCSV(csvText);
     } catch (error) {
       console.error("خطا در بارگذاری پایگاه دانش:", error);

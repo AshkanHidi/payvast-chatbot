@@ -35,10 +35,9 @@ function App() {
     <main className="bg-slate-900 text-slate-200 h-screen flex flex-col p-4 lg:p-6" dir="rtl">
         <header className="text-center mb-6 flex-shrink-0">
           <h1 className="text-3xl md:text-4xl font-bold text-white">
-            چت‌بات هوشمند <span className="text-blue-400">گروه نرم‌افزاری پیوست</span>
+            چت‌بات <span className="text-blue-400">گروه نرم‌افزاری پیوست</span>
           </h1>
-          <p className="text-slate-400 mt-2">دستیار آفلاین برای پاسخگویی به سوالات متداول</p>
-          <p className="text-xs text-slate-500 mt-1 transition-colors duration-300" 
+          <p className="text-xs text-slate-500 mt-4 transition-colors duration-300" 
              style={{ color: isReady ? '#64748b' : '#f87171' }}>
             {statusMessage}
           </p>
