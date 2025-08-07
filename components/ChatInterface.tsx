@@ -9,6 +9,8 @@ const playResponseSound = () => {
   audio.play().catch(error => console.error("Error playing sound:", error));
 };
 
+const SUGGESTIONS_PER_PAGE = 3;
+
 const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
   const isUser = message.author === MessageAuthor.USER;
   
@@ -28,7 +30,19 @@ const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
   );
 };
 
-const SuggestionBubble: React.FC<{ message: ChatMessage; onSelect: (entry: KnowledgeEntry) => void; }> = ({ message, onSelect }) => {
+interface SuggestionBubbleProps {
+  message: ChatMessage;
+  onSelect: (entry: KnowledgeEntry) => void;
+  onNextPage: () => void;
+  onPrevPage: () => void;
+  currentPage: number;
+  totalSuggestions: number;
+}
+
+const SuggestionBubble: React.FC<SuggestionBubbleProps> = ({ message, onSelect, onNextPage, onPrevPage, currentPage, totalSuggestions }) => {
+  const totalPages = Math.ceil(totalSuggestions / SUGGESTIONS_PER_PAGE);
+  const showPagination = totalSuggestions > SUGGESTIONS_PER_PAGE;
+
   return (
      <div className="flex items-start gap-3 my-4">
       <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-slate-700">
@@ -47,6 +61,27 @@ const SuggestionBubble: React.FC<{ message: ChatMessage; onSelect: (entry: Knowl
                 </button>
             ))}
         </div>
+        {showPagination && (
+          <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-600/50">
+            <button
+              onClick={onNextPage}
+              disabled={ (currentPage + 1) * SUGGESTIONS_PER_PAGE >= totalSuggestions }
+              className="px-4 py-2 text-sm font-medium rounded-md text-slate-200 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              بعدی
+            </button>
+            <span className="text-sm text-slate-400">
+              صفحه {currentPage + 1} از {totalPages}
+            </span>
+            <button
+              onClick={onPrevPage}
+              disabled={currentPage === 0}
+              className="px-4 py-2 text-sm font-medium rounded-md text-slate-200 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              قبلی
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -61,6 +96,8 @@ interface ChatInterfaceProps {
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessages, isReady }) => {
   const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [suggestionPage, setSuggestionPage] = useState(0);
+  const [allFoundSuggestions, setAllFoundSuggestions] = useState<KnowledgeEntry[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -87,7 +124,32 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
         botResponse
     ]);
     playResponseSound();
+
+    // 4. Reset suggestion state
+    setAllFoundSuggestions([]);
+    setSuggestionPage(0);
   }
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 0 || (newPage * SUGGESTIONS_PER_PAGE) >= allFoundSuggestions.length) {
+      return;
+    }
+    setSuggestionPage(newPage);
+
+    const newSuggestionsSlice = allFoundSuggestions.slice(
+      newPage * SUGGESTIONS_PER_PAGE,
+      (newPage + 1) * SUGGESTIONS_PER_PAGE
+    );
+    
+    setMessages(prev => prev.map(msg => 
+        msg.type === MessageType.SUGGESTION
+        ? { ...msg, suggestions: newSuggestionsSlice }
+        : msg
+    ));
+  };
+  
+  const handleNextPage = () => handlePageChange(suggestionPage + 1);
+  const handlePrevPage = () => handlePageChange(suggestionPage - 1);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,15 +172,22 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
         setIsLoading(false);
 
         if (matches.length > 0) {
+            setAllFoundSuggestions(matches);
+            setSuggestionPage(0);
+            
             const suggestionMessage: ChatMessage = {
                 id: `bot-sug-${Date.now()}`,
                 author: MessageAuthor.BOT,
                 type: MessageType.SUGGESTION,
-                text: 'بر اساس سوال شما، چند پاسخ احتمالی پیدا کردم. لطفاً یکی را انتخاب کنید:',
-                suggestions: matches,
+                text: matches.length > 1
+                    ? `بر اساس سوال شما، ${matches.length} پاسخ احتمالی پیدا کردم. لطفاً یکی را انتخاب کنید یا بین نتایج جستجو کنید:`
+                    : 'بر اساس سوال شما، پاسخ زیر پیدا شد. برای مشاهده پاسخ کامل آن را انتخاب کنید:',
+                suggestions: matches.slice(0, SUGGESTIONS_PER_PAGE),
             };
             setMessages(prev => [...prev, suggestionMessage]);
         } else {
+            setAllFoundSuggestions([]);
+            setSuggestionPage(0);
             const noMatchMessage: ChatMessage = {
                 id: `bot-err-${Date.now()}`,
                 author: MessageAuthor.BOT,
@@ -135,7 +204,15 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
       <div className="flex-grow overflow-y-auto mb-4 -mx-4 px-4">
         {messages.map((msg) => 
             msg.type === MessageType.SUGGESTION 
-            ? <SuggestionBubble key={msg.id} message={msg} onSelect={handleSelectSuggestion} />
+            ? <SuggestionBubble
+                key={msg.id}
+                message={msg}
+                onSelect={handleSelectSuggestion}
+                onNextPage={handleNextPage}
+                onPrevPage={handlePrevPage}
+                currentPage={suggestionPage}
+                totalSuggestions={allFoundSuggestions.length}
+              />
             : <ChatBubble key={msg.id} message={msg} />
         )}
         {isLoading && (

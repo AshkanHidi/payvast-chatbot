@@ -81,8 +81,8 @@ class KnowledgeService {
     // مرتب‌سازی بر اساس امتیاز (نزولی)
     scoredMatches.sort((a, b) => b.score - a.score);
 
-    // بازگرداندن ۳ نتیجه برتر
-    return scoredMatches.slice(0, 3);
+    // بازگرداندن همه نتایج مرتب شده
+    return scoredMatches;
   }
 }
 
