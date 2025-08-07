@@ -294,7 +294,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
       <img
         src="/logo-bg.png"
         alt="Payvast Group Logo Background"
-        className="absolute inset-0 w-full h-full object-contain opacity-5 pointer-events-none"
+        className="absolute inset-0 w-full h-full object-contain opacity-10 pointer-events-none"
       />
       <div className="flex-grow overflow-y-auto mb-3 -mx-3 px-3">
         {messages.map((msg) => 
