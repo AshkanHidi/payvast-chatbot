@@ -3,6 +3,12 @@ import { ChatMessage, MessageAuthor, MessageType, KnowledgeEntry } from '../type
 import { knowledgeService } from '../services/knowledgeService';
 import { BotIcon, SendIcon, UserIcon } from './icons';
 
+const playResponseSound = () => {
+  // Assuming bot-response.mp3 is in the public folder
+  const audio = new Audio('/bot-response.mp3');
+  audio.play().catch(error => console.error("Error playing sound:", error));
+};
+
 const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
   const isUser = message.author === MessageAuthor.USER;
   
@@ -80,6 +86,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
         userMessage,
         botResponse
     ]);
+    playResponseSound();
   }
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -119,6 +126,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
             };
             setMessages(prev => [...prev, noMatchMessage]);
         }
+        playResponseSound();
     }, 500); // A small delay to feel more natural
   };
 
