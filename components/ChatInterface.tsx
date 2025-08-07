@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, MessageAuthor, MessageType, KnowledgeEntry } from '../types';
 import { knowledgeService } from '../services/knowledgeService';
-import { BotIcon, SendIcon, UserIcon } from './icons';
+import { BotIcon, SendIcon, UserIcon, VideoPlayIcon } from './icons';
 
 const playResponseSound = () => {
   // Assuming bot-response.mp3 is in the public folder
@@ -110,7 +110,7 @@ const SuggestionBubble: React.FC<SuggestionBubbleProps> = ({ message, onSelect, 
                     className="text-right bg-slate-600/50 hover:bg-slate-600/80 p-2 rounded-md transition-colors duration-200 w-full text-sm flex justify-between items-center"
                 >
                     <span>{suggestion.question}</span>
-                    {suggestion.hasVideo && <span className="text-lg" aria-label="دارای ویدیو">📽️</span>}
+                    {suggestion.hasVideo && <VideoPlayIcon className="w-5 h-5 text-blue-400" aria-label="دارای ویدیو" />}
                 </button>
             ))}
         </div>
