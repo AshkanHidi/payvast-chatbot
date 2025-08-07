@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, MessageAuthor, MessageType, KnowledgeEntry } from '../types';
 import { knowledgeService } from '../services/knowledgeService';
@@ -19,12 +20,12 @@ const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
       <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${isUser ? 'bg-blue-500' : 'bg-slate-700'}`}>
         {isUser ? <UserIcon className="w-6 h-6 text-white" /> : <BotIcon className="w-6 h-6 text-slate-300" />}
       </div>
-      <div className={`w-full max-w-2xl p-4 rounded-2xl ${
+      <div className={`w-full max-w-3xl p-3 rounded-2xl ${
           isUser 
             ? 'bg-blue-600 text-white rounded-br-none' 
             : 'bg-slate-700 text-slate-200 rounded-bl-none'
         }`}>
-        <p className="whitespace-pre-wrap">{message.text}</p>
+        <p className="whitespace-pre-wrap text-justify">{message.text}</p>
       </div>
     </div>
   );
@@ -48,8 +49,8 @@ const SuggestionBubble: React.FC<SuggestionBubbleProps> = ({ message, onSelect, 
       <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-slate-700">
         <BotIcon className="w-6 h-6 text-slate-300" />
       </div>
-      <div className="w-full max-w-2xl p-4 rounded-2xl bg-slate-700 text-slate-200 rounded-bl-none">
-        <p className="whitespace-pre-wrap mb-4">{message.text}</p>
+      <div className="w-full max-w-3xl p-3 rounded-2xl bg-slate-700 text-slate-200 rounded-bl-none">
+        <p className="whitespace-pre-wrap mb-4 text-justify">{message.text}</p>
         <div className="flex flex-col gap-2">
             {message.suggestions?.map((suggestion, index) => (
                 <button
