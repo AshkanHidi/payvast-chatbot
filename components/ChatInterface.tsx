@@ -290,7 +290,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
   };
 
   return (
-    <div className="bg-slate-800/70 flex flex-col h-full p-3 md:p-4 rounded-xl border border-slate-700">
+    <div className="relative bg-slate-800/70 flex flex-col h-full p-3 md:p-4 rounded-xl border border-slate-700 overflow-hidden">
+      <img
+        src="/logo-bg.png"
+        alt="Payvast Group Logo Background"
+        className="absolute inset-0 w-full h-full object-contain opacity-5 pointer-events-none"
+      />
       <div className="flex-grow overflow-y-auto mb-3 -mx-3 px-3">
         {messages.map((msg) => 
             msg.type === MessageType.SUGGESTION 
