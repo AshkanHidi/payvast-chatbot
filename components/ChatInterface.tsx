@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, MessageAuthor, MessageType, KnowledgeEntry } from '../types';
 import { knowledgeService } from '../services/knowledgeService';
@@ -11,6 +12,9 @@ const playResponseSound = () => {
 
 const SUGGESTIONS_PER_PAGE = 3;
 
+// Regex to find video links from Aparat or YouTube in text.
+const videoLinkRegex = /(https?:\/\/(?:www\.)?(?:aparat\.com\/v\/|youtube\.com\/watch\?v=|youtu\.be\/)[\w-]+)/gi;
+
 interface ChatBubbleProps {
   message: ChatMessage;
   onRevisitSuggestions?: (messageId: string) => void;
@@ -19,6 +23,21 @@ interface ChatBubbleProps {
 const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRevisitSuggestions }) => {
   const isUser = message.author === MessageAuthor.USER;
   
+  // Extract video link and clean the message text for bot messages
+  let videoUrl: string | null = null;
+  let cleanedText = message.text;
+  
+  if (message.author === MessageAuthor.BOT) {
+    const match = message.text.match(videoLinkRegex);
+    if (match) {
+      videoUrl = match[0];
+      // Replace the URL with an empty string and trim any resulting whitespace
+      cleanedText = message.text.replace(videoLinkRegex, '').trim();
+    }
+  }
+
+  const hasFooter = videoUrl || (message.isAnswer && onRevisitSuggestions);
+
   return (
     <div className={`flex items-start gap-2 my-3 ${isUser ? 'flex-row-reverse' : ''}`}>
       <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${isUser ? 'bg-blue-500' : 'bg-slate-700'}`}>
@@ -29,9 +48,12 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRevisitSuggestions }
             ? 'bg-blue-600 text-white rounded-br-none' 
             : 'bg-slate-700 text-slate-200 rounded-bl-none'
         }`}>
-        <p className="whitespace-pre-wrap text-justify text-sm">{message.text}</p>
-        {message.isAnswer && onRevisitSuggestions && (
-            <div className="mt-3 pt-3 border-t border-slate-600/50">
+        {cleanedText && <p className="whitespace-pre-wrap text-justify text-sm">{cleanedText}</p>}
+        
+        {hasFooter && (
+          <div className={`flex justify-between items-center ${cleanedText ? 'mt-3 pt-3 border-t border-slate-600/50' : 'pt-1'}`}>
+            {/* Right-aligned item (in RTL) */}
+            {message.isAnswer && onRevisitSuggestions ? (
               <button
                 onClick={() => onRevisitSuggestions(message.id)}
                 className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
@@ -39,8 +61,22 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRevisitSuggestions }
               >
                 بازگشت به لیست پیشنهادات
               </button>
-            </div>
-          )}
+            ) : <div />} {/* Spacer to push video button to the left */}
+
+            {/* Left-aligned item (in RTL) */}
+            {videoUrl && (
+              <a
+                href={videoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-medium bg-blue-500 hover:bg-blue-600 text-white py-1.5 px-3 rounded-md transition-colors"
+                aria-label="ویدیوی آموزشی"
+              >
+                ویدیوی آموزشی
+              </a>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
