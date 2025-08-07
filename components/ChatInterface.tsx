@@ -16,16 +16,16 @@ const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
   const isUser = message.author === MessageAuthor.USER;
   
   return (
-    <div className={`flex items-start gap-3 my-4 ${isUser ? 'flex-row-reverse' : ''}`}>
-      <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${isUser ? 'bg-blue-500' : 'bg-slate-700'}`}>
-        {isUser ? <UserIcon className="w-6 h-6 text-white" /> : <BotIcon className="w-6 h-6 text-slate-300" />}
+    <div className={`flex items-start gap-2 my-3 ${isUser ? 'flex-row-reverse' : ''}`}>
+      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${isUser ? 'bg-blue-500' : 'bg-slate-700'}`}>
+        {isUser ? <UserIcon className="w-5 h-5 text-white" /> : <BotIcon className="w-5 h-5 text-slate-300" />}
       </div>
-      <div className={`w-full max-w-3xl p-3 rounded-2xl ${
+      <div className={`w-full max-w-3xl p-2.5 rounded-xl ${
           isUser 
             ? 'bg-blue-600 text-white rounded-br-none' 
             : 'bg-slate-700 text-slate-200 rounded-bl-none'
         }`}>
-        <p className="whitespace-pre-wrap text-justify">{message.text}</p>
+        <p className="whitespace-pre-wrap text-justify text-sm">{message.text}</p>
       </div>
     </div>
   );
@@ -45,39 +45,39 @@ const SuggestionBubble: React.FC<SuggestionBubbleProps> = ({ message, onSelect, 
   const showPagination = totalSuggestions > SUGGESTIONS_PER_PAGE;
 
   return (
-     <div className="flex items-start gap-3 my-4">
-      <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-slate-700">
-        <BotIcon className="w-6 h-6 text-slate-300" />
+     <div className="flex items-start gap-2 my-3">
+      <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-slate-700">
+        <BotIcon className="w-5 h-5 text-slate-300" />
       </div>
-      <div className="w-full max-w-3xl p-3 rounded-2xl bg-slate-700 text-slate-200 rounded-bl-none">
-        <p className="whitespace-pre-wrap mb-4 text-justify">{message.text}</p>
+      <div className="w-full max-w-3xl p-2.5 rounded-xl bg-slate-700 text-slate-200 rounded-bl-none">
+        <p className="whitespace-pre-wrap mb-3 text-justify text-sm">{message.text}</p>
         <div className="flex flex-col gap-2">
             {message.suggestions?.map((suggestion, index) => (
                 <button
                     key={index}
                     onClick={() => onSelect(suggestion)}
-                    className="text-right bg-slate-600/50 hover:bg-slate-600/80 p-3 rounded-lg transition-colors duration-200 w-full"
+                    className="text-right bg-slate-600/50 hover:bg-slate-600/80 p-2 rounded-md transition-colors duration-200 w-full text-sm"
                 >
                     {suggestion.question}
                 </button>
             ))}
         </div>
         {showPagination && (
-          <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-600/50">
+          <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-600/50">
             <button
               onClick={onNextPage}
               disabled={ (currentPage + 1) * SUGGESTIONS_PER_PAGE >= totalSuggestions }
-              className="px-4 py-2 text-sm font-medium rounded-md text-slate-200 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 text-xs font-medium rounded-md text-slate-200 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               بعدی
             </button>
-            <span className="text-sm text-slate-400">
+            <span className="text-xs text-slate-400">
               صفحه {currentPage + 1} از {totalPages}
             </span>
             <button
               onClick={onPrevPage}
               disabled={currentPage === 0}
-              className="px-4 py-2 text-sm font-medium rounded-md text-slate-200 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 text-xs font-medium rounded-md text-slate-200 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               قبلی
             </button>
@@ -201,8 +201,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
   };
 
   return (
-    <div className="bg-slate-800/70 flex flex-col h-full p-4 md:p-6 rounded-2xl border border-slate-700">
-      <div className="flex-grow overflow-y-auto mb-4 -mx-4 px-4">
+    <div className="bg-slate-800/70 flex flex-col h-full p-3 md:p-4 rounded-xl border border-slate-700">
+      <div className="flex-grow overflow-y-auto mb-3 -mx-3 px-3">
         {messages.map((msg) => 
             msg.type === MessageType.SUGGESTION 
             ? <SuggestionBubble
@@ -217,37 +217,37 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
             : <ChatBubble key={msg.id} message={msg} />
         )}
         {isLoading && (
-            <div className="flex items-start gap-3 my-4">
-                 <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-slate-700">
-                    <BotIcon className="w-6 h-6 text-slate-300"/>
+            <div className="flex items-start gap-2 my-3">
+                 <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-slate-700">
+                    <BotIcon className="w-5 h-5 text-slate-300"/>
                  </div>
-                 <div className="w-full max-w-lg p-4 rounded-2xl bg-slate-700 text-slate-200 rounded-bl-none">
+                 <div className="w-full max-w-lg p-3 rounded-xl bg-slate-700 text-slate-200 rounded-bl-none">
                     <div className="flex items-center space-x-2" dir="ltr">
-                        <div className="w-2.5 h-2.5 bg-slate-400 rounded-full animate-pulse"></div>
-                        <div className="w-2.5 h-2.5 bg-slate-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                        <div className="w-2.5 h-2.5 bg-slate-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
                     </div>
                  </div>
             </div>
         )}
         <div ref={chatEndRef} />
       </div>
-      <form onSubmit={handleSendMessage} className="flex items-center gap-3 mt-auto">
+      <form onSubmit={handleSendMessage} className="flex items-center gap-2 mt-auto">
         <input
           type="text"
           value={userInput}
           onChange={(e) => setUserInput(e.target.value)}
           placeholder={isReady ? "سوال خود را اینجا بنویسید..." : "دستیار هوشمند در حال آماده‌سازی است..."}
-          className="flex-grow bg-slate-800 border border-slate-700 rounded-lg py-3 px-4 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
+          className="flex-grow bg-slate-800 border border-slate-700 rounded-md py-2 px-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
           disabled={isLoading || !isReady}
         />
         <button
           type="submit"
           disabled={isLoading || !isReady || !userInput.trim()}
-          className="bg-blue-600 text-white rounded-lg p-3 disabled:bg-slate-600 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors flex-shrink-0"
+          className="bg-blue-600 text-white rounded-md p-2.5 disabled:bg-slate-600 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors flex-shrink-0"
           aria-label="ارسال پیام"
         >
-          <SendIcon className="w-6 h-6" />
+          <SendIcon className="w-5 h-5" />
         </button>
       </form>
     </div>

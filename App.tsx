@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ChatInterface } from './components/ChatInterface';
 import { ChatMessage, MessageAuthor } from './types';
@@ -32,12 +33,12 @@ function App() {
   }, []);
 
   return (
-    <main className="bg-slate-900 text-slate-200 h-screen flex flex-col p-4 lg:p-6" dir="rtl">
-        <header className="text-center mb-6 flex-shrink-0">
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
+    <main className="bg-slate-900 text-slate-200 h-screen flex flex-col p-3 lg:p-4" dir="rtl">
+        <header className="text-center mb-4 flex-shrink-0">
+          <h1 className="text-2xl md:text-3xl font-bold text-white">
             چت‌بات <span className="text-blue-400">گروه نرم‌افزاری پیوست</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-4 transition-colors duration-300" 
+          <p className="text-xs text-slate-500 mt-2 transition-colors duration-300" 
              style={{ color: isReady ? '#64748b' : '#f87171' }}>
             {statusMessage}
           </p>
