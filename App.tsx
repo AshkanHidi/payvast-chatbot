@@ -33,7 +33,17 @@ function App() {
   }, []);
 
   return (
-    <main className="bg-slate-900 text-slate-200 h-screen flex flex-col p-3 lg:p-4" dir="rtl">
+    <main 
+      className="text-slate-200 h-screen flex flex-col p-3 lg:p-4" 
+      dir="rtl"
+      style={{
+        backgroundColor: '#0f172a', // slate-900
+        backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.97), rgba(15, 23, 42, 0.97)), url('/PSG.png')`,
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'contain',
+      }}
+    >
         <header className="text-center mb-4 flex-shrink-0">
           <h1 className="text-2xl md:text-3xl font-bold text-white">
             چت‌بات <span className="text-blue-400">گروه نرم‌افزاری پیوست</span>
