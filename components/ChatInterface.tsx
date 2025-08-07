@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, MessageAuthor, MessageType, KnowledgeEntry } from '../types';
 import { knowledgeService } from '../services/knowledgeService';
-import { BotIcon, SendIcon, UserIcon, VideoPlayIcon } from './icons';
+import { BotIcon, SendIcon, UserIcon, VideoPlayIcon, TelegramIcon } from './icons';
 
 const playResponseSound = () => {
   // Assuming bot-response.mp3 is in the public folder
@@ -61,19 +61,32 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRevisitSuggestions }
               >
                 بازگشت به لیست پیشنهادات
               </button>
-            ) : <div />} {/* Spacer to push video button to the left */}
+            ) : <div />} {/* Spacer to push buttons to the left */}
 
-            {/* Left-aligned item (in RTL) */}
+            {/* Left-aligned items (in RTL) */}
             {videoUrl && (
-              <a
-                href={videoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs font-medium bg-blue-500 hover:bg-blue-600 text-white py-1.5 px-3 rounded-md transition-colors"
-                aria-label="ویدیوی آموزشی"
-              >
-                ویدیوی آموزشی
-              </a>
+              <div className="flex items-center gap-2">
+                 <a
+                  href="https://t.me/payvastsoftware"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-medium bg-sky-500 hover:bg-sky-600 text-white py-1.5 px-3 rounded-md transition-colors flex items-center gap-1.5"
+                  aria-label="عضویت در کانال تلگرام"
+                >
+                  <TelegramIcon className="w-4 h-4" />
+                  <span>عضویت در کانال</span>
+                </a>
+                <a
+                  href={videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-medium bg-red-500 hover:bg-red-600 text-white py-1.5 px-3 rounded-md transition-colors flex items-center gap-1.5"
+                  aria-label="ویدیوی آموزشی"
+                >
+                  <VideoPlayIcon className="w-4 h-4" />
+                  <span>ویدیوی آموزشی</span>
+                </a>
+              </div>
             )}
           </div>
         )}
