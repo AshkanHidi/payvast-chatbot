@@ -45,7 +45,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRevisitSuggestions }
       </div>
       <div className={`w-full max-w-3xl p-2.5 rounded-xl ${
           isUser 
-            ? 'bg-blue-600 text-white rounded-br-none' 
+            ? 'bg-blue-500 text-white rounded-br-none' 
             : 'bg-slate-700 text-slate-200 rounded-bl-none'
         }`}>
         {cleanedText && <p className="whitespace-pre-wrap text-justify text-sm">{cleanedText}</p>}
@@ -132,7 +132,7 @@ const SuggestionBubble: React.FC<SuggestionBubbleProps> = ({ message, onSelect, 
             <button
               onClick={onNextPage}
               disabled={ (currentPage + 1) * SUGGESTIONS_PER_PAGE >= totalSuggestions }
-              className="px-3 py-1.5 text-xs font-medium rounded-md text-slate-200 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 text-xs font-medium rounded-md text-slate-200 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               بعدی
             </button>
@@ -142,7 +142,7 @@ const SuggestionBubble: React.FC<SuggestionBubbleProps> = ({ message, onSelect, 
             <button
               onClick={onPrevPage}
               disabled={currentPage === 0}
-              className="px-3 py-1.5 text-xs font-medium rounded-md text-slate-200 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-1.5 text-xs font-medium rounded-md text-slate-200 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               قبلی
             </button>
@@ -337,7 +337,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
         <button
           type="submit"
           disabled={isLoading || !isReady || !userInput.trim()}
-          className="bg-blue-600 text-white rounded-md p-2.5 disabled:bg-slate-600 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors flex-shrink-0"
+          className="bg-blue-500 text-white rounded-md p-2.5 disabled:bg-slate-600 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors flex-shrink-0"
           aria-label="ارسال پیام"
         >
           <SendIcon className="w-5 h-5" />
