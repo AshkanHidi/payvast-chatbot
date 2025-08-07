@@ -1,11 +1,14 @@
 import { KnowledgeEntry } from '../types';
 
-// یک تابع ساده برای تجزیه فایل CSV با فرمت "سوال","پاسخ"
+// Patterns to detect video links
+const videoLinkPatterns = [/aparat\.com/i, /youtube\.com/i, /youtu\.be/i];
+
+// A simple function to parse a CSV file with "question","answer" format
 const parseCSV = (csvText: string): KnowledgeEntry[] => {
   const entries: KnowledgeEntry[] = [];
   const lines = csvText.trim().split('\n');
   
-  // شروع از خط دوم برای نادیده گرفتن سرآیند
+  // Start from the second line to skip the header
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i].trim();
     if (line) {
@@ -13,19 +16,20 @@ const parseCSV = (csvText: string): KnowledgeEntry[] => {
       if (parts && parts.length === 2) {
         const question = parts[0].slice(1, -1).trim();
         const answer = parts[1].slice(1, -1).trim();
-        entries.push({ question, answer });
+        const hasVideo = videoLinkPatterns.some(pattern => pattern.test(answer));
+        entries.push({ question, answer, hasVideo });
       }
     }
   }
   return entries;
 };
 
-// لیست کلمات ایست (Stop Words) فارسی برای نادیده گرفتن در جستجو
+// List of Farsi stop words to ignore in search
 const farsiStopWords = new Set(['از', 'به', 'با', 'در', 'که', 'و', 'را', 'برای', 'یک', 'است', 'هست', 'بود', 'شد', 'شود', 'کنم', 'کنید', 'باشد', 'باشند', 'چه', 'چطور', 'چگونه', 'آیا', 'کیست', 'چیست', 'من']);
 
-// تابعی برای استخراج کلیدواژه‌های معنادار از متن
+// Function to extract meaningful keywords from text
 const getKeywords = (text: string): Set<string> => {
-  // نرمال‌سازی اولیه: حذف علائم نگارشی و تبدیل به کلمات
+  // Basic normalization: remove punctuation and split into words
   const words = text.replace(/[.,؟?]/g, ' ').split(/\s+/);
   return new Set(words.filter(word => word && !farsiStopWords.has(word) && word.length > 1));
 };
@@ -37,16 +41,16 @@ class KnowledgeService {
     try {
       const response = await fetch('/knowledge-base.csv');
       if (!response.ok) {
-        throw new Error(`خطا در بارگیری فایل: ${response.statusText}`);
+        throw new Error(`Error loading file: ${response.statusText}`);
       }
-      // خواندن فایل به صورت باینری و رمزگشایی با UTF-8 برای پشتیبانی کامل از فارسی
+      // Read the file as a binary buffer and decode with UTF-8 for full Farsi support
       const buffer = await response.arrayBuffer();
       const decoder = new TextDecoder('utf-8');
       const csvText = decoder.decode(buffer);
 
       this.knowledgeBase = parseCSV(csvText);
     } catch (error) {
-      console.error("خطا در بارگذاری پایگاه دانش:", error);
+      console.error("Error loading knowledge base:", error);
       throw error;
     }
   }
@@ -67,7 +71,7 @@ class KnowledgeService {
           score++;
         }
       });
-      // افزودن امتیاز اضافی برای کلمات مشابه متوالی (برای دقت بیشتر)
+      // Add extra score for consecutive similar words (for better accuracy)
       const userText = Array.from(userKeywords).join(' ');
       if (entry.question.includes(userText)) {
         score += 2;
@@ -78,10 +82,10 @@ class KnowledgeService {
       }
     });
 
-    // مرتب‌سازی بر اساس امتیاز (نزولی)
+    // Sort by score (descending)
     scoredMatches.sort((a, b) => b.score - a.score);
 
-    // بازگرداندن همه نتایج مرتب شده
+    // Return all sorted results
     return scoredMatches;
   }
 }

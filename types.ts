@@ -11,6 +11,7 @@ export enum MessageType {
 export interface KnowledgeEntry {
   question: string;
   answer: string;
+  hasVideo?: boolean;
 }
 
 export interface ChatMessage {

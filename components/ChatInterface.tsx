@@ -71,9 +71,10 @@ const SuggestionBubble: React.FC<SuggestionBubbleProps> = ({ message, onSelect, 
                 <button
                     key={index}
                     onClick={() => onSelect(suggestion)}
-                    className="text-right bg-slate-600/50 hover:bg-slate-600/80 p-2 rounded-md transition-colors duration-200 w-full text-sm"
+                    className="text-right bg-slate-600/50 hover:bg-slate-600/80 p-2 rounded-md transition-colors duration-200 w-full text-sm flex justify-between items-center"
                 >
-                    {suggestion.question}
+                    <span>{suggestion.question}</span>
+                    {suggestion.hasVideo && <span className="text-lg" aria-label="دارای ویدیو">📽️</span>}
                 </button>
             ))}
         </div>
