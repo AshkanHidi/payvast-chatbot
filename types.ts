@@ -19,4 +19,5 @@ export interface ChatMessage {
   text: string;
   type?: MessageType;
   suggestions?: KnowledgeEntry[];
+  isAnswer?: boolean; // Flag to indicate this is an answer to a suggestion
 }

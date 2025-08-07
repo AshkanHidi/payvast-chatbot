@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, MessageAuthor, MessageType, KnowledgeEntry } from '../types';
 import { knowledgeService } from '../services/knowledgeService';
@@ -12,7 +11,12 @@ const playResponseSound = () => {
 
 const SUGGESTIONS_PER_PAGE = 3;
 
-const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
+interface ChatBubbleProps {
+  message: ChatMessage;
+  onRevisitSuggestions?: (messageId: string) => void;
+}
+
+const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRevisitSuggestions }) => {
   const isUser = message.author === MessageAuthor.USER;
   
   return (
@@ -26,6 +30,17 @@ const ChatBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
             : 'bg-slate-700 text-slate-200 rounded-bl-none'
         }`}>
         <p className="whitespace-pre-wrap text-justify text-sm">{message.text}</p>
+        {message.isAnswer && onRevisitSuggestions && (
+            <div className="mt-3 pt-3 border-t border-slate-600/50">
+              <button
+                onClick={() => onRevisitSuggestions(message.id)}
+                className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                aria-label="بازگشت به لیست پیشنهادات"
+              >
+                بازگشت به لیست پیشنهادات
+              </button>
+            </div>
+          )}
       </div>
     </div>
   );
@@ -99,6 +114,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
   const [isLoading, setIsLoading] = useState(false);
   const [suggestionPage, setSuggestionPage] = useState(0);
   const [allFoundSuggestions, setAllFoundSuggestions] = useState<KnowledgeEntry[]>([]);
+  const [lastSuggestionQuery, setLastSuggestionQuery] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -106,31 +122,53 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
   }, [messages]);
 
   const handleSelectSuggestion = (entry: KnowledgeEntry) => {
-    // 1. Add user's selected question to chat
     const userMessage: ChatMessage = {
       id: `user-select-${Date.now()}`,
       author: MessageAuthor.USER,
       text: entry.question
     };
-    // 2. Add bot's answer to chat
     const botResponse: ChatMessage = {
         id: `bot-answer-${Date.now()}`,
         author: MessageAuthor.BOT,
-        text: entry.answer
+        text: entry.answer,
+        isAnswer: true,
     };
-    // 3. Remove the suggestion bubble and add new messages
+    
     setMessages(prev => [
-        ...prev.filter(m => m.type !== MessageType.SUGGESTION),
+        ...prev.filter(m => m.type !== MessageType.SUGGESTION).map(m => ({...m, isAnswer: false})),
         userMessage,
         botResponse
     ]);
     playResponseSound();
-
-    // 4. Reset suggestion state
-    setAllFoundSuggestions([]);
-    setSuggestionPage(0);
   }
 
+  const handleRevisitSuggestions = (messageId: string) => {
+    if (!lastSuggestionQuery) return;
+
+    // Hide the "revisit" button on the message it was clicked on
+    setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isAnswer: false } : m));
+    setIsLoading(true);
+
+    setTimeout(() => {
+        setIsLoading(false);
+        const matches = knowledgeService.findMatches(lastSuggestionQuery);
+        if (matches.length > 0) {
+            setAllFoundSuggestions(matches);
+            setSuggestionPage(0);
+
+            const suggestionMessage: ChatMessage = {
+                id: `bot-sug-revisit-${Date.now()}`,
+                author: MessageAuthor.BOT,
+                type: MessageType.SUGGESTION,
+                text: `نمایش مجدد نتایج برای "${lastSuggestionQuery}":`,
+                suggestions: matches.slice(0, SUGGESTIONS_PER_PAGE),
+            };
+            setMessages(prev => [...prev, suggestionMessage]);
+            playResponseSound();
+        }
+    }, 500);
+  };
+  
   const handlePageChange = (newPage: number) => {
     if (newPage < 0 || (newPage * SUGGESTIONS_PER_PAGE) >= allFoundSuggestions.length) {
       return;
@@ -162,10 +200,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
       author: MessageAuthor.USER,
       text: trimmedInput,
     };
-    // Add user message and clear input
-    setMessages(prev => [...prev, newUserMessage]);
+    
+    // Add user message, clear old suggestion contexts, and clear input
+    setMessages(prev => [...prev.map(m => ({...m, isAnswer: false})), newUserMessage]);
     setUserInput('');
     setIsLoading(true);
+    setLastSuggestionQuery(null); // Reset suggestion context on new query
 
     // Simulate thinking
     setTimeout(() => {
@@ -173,6 +213,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
         setIsLoading(false);
 
         if (matches.length > 0) {
+            setLastSuggestionQuery(trimmedInput); // Save query context
             setAllFoundSuggestions(matches);
             setSuggestionPage(0);
             
@@ -187,8 +228,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
             };
             setMessages(prev => [...prev, suggestionMessage]);
         } else {
-            setAllFoundSuggestions([]);
-            setSuggestionPage(0);
             const noMatchMessage: ChatMessage = {
                 id: `bot-err-${Date.now()}`,
                 author: MessageAuthor.BOT,
@@ -214,7 +253,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
                 currentPage={suggestionPage}
                 totalSuggestions={allFoundSuggestions.length}
               />
-            : <ChatBubble key={msg.id} message={msg} />
+            : <ChatBubble 
+                key={msg.id} 
+                message={msg}
+                onRevisitSuggestions={handleRevisitSuggestions}
+              />
         )}
         {isLoading && (
             <div className="flex items-start gap-2 my-3">
