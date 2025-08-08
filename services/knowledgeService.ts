@@ -17,7 +17,8 @@ const parseCSV = (csvText: string): KnowledgeEntry[] => {
         const question = parts[0].slice(1, -1).trim();
         const answer = parts[1].slice(1, -1).trim();
         const hasVideo = videoLinkPatterns.some(pattern => pattern.test(answer));
-        entries.push({ question, answer, hasVideo });
+        // Initialize with a score of 0
+        entries.push({ question, answer, hasVideo, score: 0 });
       }
     }
   }
@@ -61,32 +62,49 @@ class KnowledgeService {
     const userKeywords = getKeywords(userQuestion);
     if (userKeywords.size === 0) return [];
 
-    const scoredMatches: (KnowledgeEntry & { score: number })[] = [];
+    const scoredMatches: (KnowledgeEntry & { relevanceScore: number })[] = [];
 
     this.knowledgeBase.forEach(entry => {
       const entryKeywords = getKeywords(entry.question);
-      let score = 0;
+      let relevanceScore = 0;
       userKeywords.forEach(userWord => {
         if (entryKeywords.has(userWord)) {
-          score++;
+          relevanceScore++;
         }
       });
       // Add extra score for consecutive similar words (for better accuracy)
       const userText = Array.from(userKeywords).join(' ');
       if (entry.question.includes(userText)) {
-        score += 2;
+        relevanceScore += 2;
       }
 
-      if (score > 0) {
-        scoredMatches.push({ ...entry, score });
+      if (relevanceScore > 0) {
+        scoredMatches.push({ ...entry, relevanceScore });
       }
     });
 
-    // Sort by score (descending)
-    scoredMatches.sort((a, b) => b.score - a.score);
+    // Sort by combined score: relevance score + stored feedback score
+    scoredMatches.sort((a, b) => {
+        const totalScoreA = a.relevanceScore + a.score;
+        const totalScoreB = b.relevanceScore + b.score;
+        return totalScoreB - totalScoreA;
+    });
 
-    // Return all sorted results
     return scoredMatches;
+  }
+  
+  public likeEntry(question: string): void {
+    const entry = this.knowledgeBase.find(e => e.question === question);
+    if (entry) {
+      entry.score++;
+    }
+  }
+
+  public dislikeEntry(question: string): void {
+    const entry = this.knowledgeBase.find(e => e.question === question);
+    if (entry) {
+      entry.score--;
+    }
   }
 }
 

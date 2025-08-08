@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 export const SendIcon = ({ className }: { className?: string }) => (
@@ -32,8 +31,14 @@ export const TelegramIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
-export const RobotBgIcon = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" className={className} fill="currentColor" aria-hidden="true">
-        <path d="M224,115.55V184a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a64.12,64.12,0,0,1,5-25.22L54.64,48h146.72l17.65,42.33A64.12,64.12,0,0,1,224,115.55ZM184,80H72L60.29,107.49a48.16,48.16,0,0,0-4.24,18.92V184H200V126.41a48.16,48.16,0,0,0-4.24-18.92ZM104,144a12,12,0,1,0-12-12A12,12,0,0,0,104,144Zm48,0a12,12,0,1,0-12-12A12,12,0,0,0,152,144Z"/>
+export const LikeIcon = ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+    </svg>
+);
+
+export const DislikeIcon = ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14-.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
     </svg>
 );
