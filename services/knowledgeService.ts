@@ -17,8 +17,8 @@ const parseCSV = (csvText: string): KnowledgeEntry[] => {
         const question = parts[0].slice(1, -1).trim();
         const answer = parts[1].slice(1, -1).trim();
         const hasVideo = videoLinkPatterns.some(pattern => pattern.test(answer));
-        // Initialize with a score of 0
-        entries.push({ question, answer, hasVideo, score: 0 });
+        // Initialize with likes and dislikes
+        entries.push({ question, answer, hasVideo, likes: 0, dislikes: 0 });
       }
     }
   }
@@ -83,11 +83,23 @@ class KnowledgeService {
       }
     });
 
-    // Sort by combined score: relevance score + stored feedback score
+    // Enhanced sorting logic for fairness
     scoredMatches.sort((a, b) => {
-        const totalScoreA = a.relevanceScore + a.score;
-        const totalScoreB = b.relevanceScore + b.score;
-        return totalScoreB - totalScoreA;
+        const scoreA = a.likes - a.dislikes;
+        const scoreB = b.likes - b.dislikes;
+
+        // 1. Primary sort by relevance
+        if (b.relevanceScore !== a.relevanceScore) {
+            return b.relevanceScore - a.relevanceScore;
+        }
+        
+        // 2. Secondary sort by net score (likes - dislikes)
+        if (scoreB !== scoreA) {
+            return scoreB - scoreA;
+        }
+
+        // 3. Tertiary sort by total likes (as a tie-breaker for confidence)
+        return b.likes - a.likes;
     });
 
     return scoredMatches;
@@ -96,14 +108,14 @@ class KnowledgeService {
   public likeEntry(question: string): void {
     const entry = this.knowledgeBase.find(e => e.question === question);
     if (entry) {
-      entry.score++;
+      entry.likes++;
     }
   }
 
   public dislikeEntry(question: string): void {
     const entry = this.knowledgeBase.find(e => e.question === question);
     if (entry) {
-      entry.score--;
+      entry.dislikes++;
     }
   }
 }

@@ -12,7 +12,8 @@ export interface KnowledgeEntry {
   question: string;
   answer: string;
   hasVideo?: boolean;
-  score: number; // To store user feedback rating
+  likes: number;
+  dislikes: number;
 }
 
 export interface ChatMessage {
