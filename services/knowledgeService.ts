@@ -62,7 +62,7 @@ class KnowledgeService {
     const userKeywords = getKeywords(userQuestion);
     if (userKeywords.size === 0) return [];
 
-    const scoredMatches: (KnowledgeEntry & { relevanceScore: number })[] = [];
+    const scoredMatches: (KnowledgeEntry & { finalScore: number })[] = [];
 
     this.knowledgeBase.forEach(entry => {
       const entryKeywords = getKeywords(entry.question);
@@ -72,35 +72,28 @@ class KnowledgeService {
           relevanceScore++;
         }
       });
-      // Add extra score for consecutive similar words (for better accuracy)
+      
+      // Add extra score for a potential phrase match
       const userText = Array.from(userKeywords).join(' ');
       if (entry.question.includes(userText)) {
         relevanceScore += 2;
       }
 
+      // Only consider entries that have some relevance
       if (relevanceScore > 0) {
-        scoredMatches.push({ ...entry, relevanceScore });
+        const feedbackScore = entry.likes - entry.dislikes;
+        
+        // Weighting: a relevance point is much more valuable than a feedback point.
+        // This ensures relevance is the primary factor, but feedback can act as a strong tie-breaker.
+        const RELEVANCE_WEIGHT = 5; 
+        const finalScore = (relevanceScore * RELEVANCE_WEIGHT) + feedbackScore;
+
+        scoredMatches.push({ ...entry, finalScore });
       }
     });
 
-    // Enhanced sorting logic for fairness
-    scoredMatches.sort((a, b) => {
-        const scoreA = a.likes - a.dislikes;
-        const scoreB = b.likes - b.dislikes;
-
-        // 1. Primary sort by relevance
-        if (b.relevanceScore !== a.relevanceScore) {
-            return b.relevanceScore - a.relevanceScore;
-        }
-        
-        // 2. Secondary sort by net score (likes - dislikes)
-        if (scoreB !== scoreA) {
-            return scoreB - scoreA;
-        }
-
-        // 3. Tertiary sort by total likes (as a tie-breaker for confidence)
-        return b.likes - a.likes;
-    });
+    // Sort by the combined final score, descending.
+    scoredMatches.sort((a, b) => b.finalScore - a.finalScore);
 
     return scoredMatches;
   }
