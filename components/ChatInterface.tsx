@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, MessageAuthor, MessageType, KnowledgeEntry } from '../types';
 import { knowledgeService } from '../services/knowledgeService';
-import { BotIcon, SendIcon, UserIcon, VideoPlayIcon, TelegramIcon, LikeIcon, DislikeIcon } from './icons';
+import { BotIcon, SendIcon, UserIcon, VideoPlayIcon, TelegramIcon } from './icons';
 
 const playResponseSound = () => {
   // Assuming bot-response.mp3 is in the public folder
@@ -17,10 +17,9 @@ const videoLinkRegex = /(https?:\/\/(?:www\.)?(?:aparat\.com\/v\/|youtube\.com\/
 interface ChatBubbleProps {
   message: ChatMessage;
   onRevisitSuggestions?: (messageId: string) => void;
-  onFeedback?: (messageId: string, question: string, feedback: 'like' | 'dislike') => void;
 }
 
-const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRevisitSuggestions, onFeedback }) => {
+const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRevisitSuggestions }) => {
   const isUser = message.author === MessageAuthor.USER;
   
   // Extract video link and clean the message text for bot messages
@@ -38,7 +37,6 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRevisitSuggestions, 
 
   // A bot message always has a footer now.
   const hasFooter = !isUser;
-  const hasFeedbackBeenGiven = !!message.feedback;
 
   return (
     <div className={`flex items-start gap-2 my-3 ${isUser ? 'flex-row-reverse' : ''}`}>
@@ -67,34 +65,6 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRevisitSuggestions, 
 
             {/* Left-aligned items (in RTL) */}
             <div className="flex items-center gap-2">
-                {message.isAnswer && onFeedback && message.originalQuestion && (
-                    <div className="flex items-center gap-1.5 border-l border-slate-600/50 pl-2 ml-2">
-                        <button 
-                            onClick={() => onFeedback(message.id, message.originalQuestion!, 'like')}
-                            disabled={hasFeedbackBeenGiven}
-                            className={`p-1 rounded-full transition-colors ${
-                                message.feedback === 'like' 
-                                    ? 'text-green-400' 
-                                    : 'text-slate-400 hover:bg-slate-600/70 hover:text-green-400'
-                            } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:text-slate-400`}
-                            aria-label="پسندیدم"
-                        >
-                            <LikeIcon className="w-4 h-4" />
-                        </button>
-                        <button 
-                            onClick={() => onFeedback(message.id, message.originalQuestion!, 'dislike')}
-                            disabled={hasFeedbackBeenGiven}
-                            className={`p-1 rounded-full transition-colors ${
-                                message.feedback === 'dislike' 
-                                    ? 'text-red-400' 
-                                    : 'text-slate-400 hover:bg-slate-600/70 hover:text-red-400'
-                            } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:text-slate-400`}
-                            aria-label="نپسندیدم"
-                        >
-                            <DislikeIcon className="w-4 h-4" />
-                        </button>
-                    </div>
-                 )}
                  <a
                   href="https://t.me/payvastsoftware"
                   target="_blank"
@@ -200,18 +170,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  const handleFeedback = (messageId: string, question: string, feedback: 'like' | 'dislike') => {
-    if (feedback === 'like') {
-        knowledgeService.likeEntry(question);
-    } else {
-        knowledgeService.dislikeEntry(question);
-    }
-
-    setMessages(prev => prev.map(msg => 
-        msg.id === messageId ? { ...msg, feedback } : msg
-    ));
-  };
   
   const handleSelectSuggestion = (entry: KnowledgeEntry) => {
     const userMessage: ChatMessage = {
@@ -224,7 +182,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
         author: MessageAuthor.BOT,
         text: entry.answer,
         isAnswer: true,
-        originalQuestion: entry.question, // Pass question to link feedback
     };
     
     setMessages(prev => [
@@ -350,7 +307,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessa
                 key={msg.id} 
                 message={msg}
                 onRevisitSuggestions={handleRevisitSuggestions}
-                onFeedback={handleFeedback}
               />
         )}
         {isLoading && (

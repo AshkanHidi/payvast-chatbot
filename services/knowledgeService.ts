@@ -17,8 +17,7 @@ const parseCSV = (csvText: string): KnowledgeEntry[] => {
         const question = parts[0].slice(1, -1).trim();
         const answer = parts[1].slice(1, -1).trim();
         const hasVideo = videoLinkPatterns.some(pattern => pattern.test(answer));
-        // Initialize with likes and dislikes
-        entries.push({ question, answer, hasVideo, likes: 0, dislikes: 0 });
+        entries.push({ question, answer, hasVideo });
       }
     }
   }
@@ -62,7 +61,7 @@ class KnowledgeService {
     const userKeywords = getKeywords(userQuestion);
     if (userKeywords.size === 0) return [];
 
-    const scoredMatches: (KnowledgeEntry & { finalScore: number })[] = [];
+    const scoredMatches: (KnowledgeEntry & { relevanceScore: number })[] = [];
 
     this.knowledgeBase.forEach(entry => {
       const entryKeywords = getKeywords(entry.question);
@@ -81,35 +80,14 @@ class KnowledgeService {
 
       // Only consider entries that have some relevance
       if (relevanceScore > 0) {
-        const feedbackScore = entry.likes - entry.dislikes;
-        
-        // Weighting: a relevance point is much more valuable than a feedback point.
-        // This ensures relevance is the primary factor, but feedback can act as a strong tie-breaker.
-        const RELEVANCE_WEIGHT = 5; 
-        const finalScore = (relevanceScore * RELEVANCE_WEIGHT) + feedbackScore;
-
-        scoredMatches.push({ ...entry, finalScore });
+        scoredMatches.push({ ...entry, relevanceScore });
       }
     });
 
-    // Sort by the combined final score, descending.
-    scoredMatches.sort((a, b) => b.finalScore - a.finalScore);
+    // Sort by relevance score, descending.
+    scoredMatches.sort((a, b) => b.relevanceScore - a.relevanceScore);
 
     return scoredMatches;
-  }
-  
-  public likeEntry(question: string): void {
-    const entry = this.knowledgeBase.find(e => e.question === question);
-    if (entry) {
-      entry.likes++;
-    }
-  }
-
-  public dislikeEntry(question: string): void {
-    const entry = this.knowledgeBase.find(e => e.question === question);
-    if (entry) {
-      entry.dislikes++;
-    }
   }
 }
 

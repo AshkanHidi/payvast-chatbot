@@ -12,8 +12,6 @@ export interface KnowledgeEntry {
   question: string;
   answer: string;
   hasVideo?: boolean;
-  likes: number;
-  dislikes: number;
 }
 
 export interface ChatMessage {
@@ -23,6 +21,4 @@ export interface ChatMessage {
   type?: MessageType;
   suggestions?: KnowledgeEntry[];
   isAnswer?: boolean; // Flag to indicate this is an answer to a suggestion
-  originalQuestion?: string; // The original question from KnowledgeEntry
-  feedback?: 'like' | 'dislike'; // To track user feedback on a message
 }
