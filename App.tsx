@@ -34,7 +34,7 @@ function App() {
 
   return (
     <main 
-      className="bg-slate-900 text-slate-200 h-screen flex flex-col p-3 lg:p-4" 
+      className="app-container bg-slate-900 text-slate-200 h-screen flex flex-col p-3 lg:p-4" 
       dir="rtl"
     >
         <header className="text-center mb-4 flex-shrink-0">
