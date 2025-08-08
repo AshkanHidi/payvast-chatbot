@@ -36,7 +36,8 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRevisitSuggestions }
     }
   }
 
-  const hasFooter = videoUrl || (message.isAnswer && onRevisitSuggestions);
+  // A bot message always has a footer now.
+  const hasFooter = !isUser;
 
   return (
     <div className={`flex items-start gap-2 my-3 ${isUser ? 'flex-row-reverse' : ''}`}>
@@ -64,8 +65,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRevisitSuggestions }
             ) : <div />} {/* Spacer to push buttons to the left */}
 
             {/* Left-aligned items (in RTL) */}
-            {videoUrl && (
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
                  <a
                   href="https://t.me/payvastsoftware"
                   target="_blank"
@@ -76,18 +76,19 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onRevisitSuggestions }
                   <TelegramIcon className="w-4 h-4" />
                   <span>عضویت در کانال</span>
                 </a>
-                <a
-                  href={videoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs font-medium bg-red-500 hover:bg-red-600 text-white py-1.5 px-3 rounded-md transition-colors flex items-center gap-1.5"
-                  aria-label="ویدیوی آموزشی"
-                >
-                  <VideoPlayIcon className="w-4 h-4" />
-                  <span>ویدیوی آموزشی</span>
-                </a>
-              </div>
-            )}
+                {videoUrl && (
+                  <a
+                    href={videoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-medium bg-red-500 hover:bg-red-600 text-white py-1.5 px-3 rounded-md transition-colors flex items-center gap-1.5"
+                    aria-label="ویدیوی آموزشی"
+                  >
+                    <VideoPlayIcon className="w-4 h-4" />
+                    <span>ویدیوی آموزشی</span>
+                  </a>
+                )}
+            </div>
           </div>
         )}
       </div>
